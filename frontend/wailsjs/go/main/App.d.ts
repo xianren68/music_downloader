@@ -8,3 +8,5 @@ export function Greet(arg1:string):Promise<string>;
 export function OpenDirDialog():Promise<string>;
 
 export function SaveConfig(arg1:string):Promise<boolean>;
+
+export function Search(arg1:number,arg2:string):Promise<string>;
