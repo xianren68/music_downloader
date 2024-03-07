@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@types/node": "^20.11.24",
+    "element-plus": "^2.6.0",
     "sass": "^1.71.1",
     "scss": "^0.2.4",
+    "unplugin-auto-import": "^0.17.5",
+    "unplugin-vue-components": "^0.26.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

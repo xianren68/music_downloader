@@ -22,9 +22,8 @@ const jump = (name:string)=>{
 
 <style scoped lang="scss">
 .aside {
-    height: 100%;
+    height: calc(100% - 20px);
     width:60px;
-    background: linear-gradient(to bottom, #1f4037, #99f2c8);
     padding-top:20px;
     display: flex;
     flex-direction: column;
@@ -41,7 +40,7 @@ const jump = (name:string)=>{
         }
         &:nth-child(3){
             position: absolute;
-            bottom: 15px;
+            bottom: 20px;
         }
         &.active{
             .icon {

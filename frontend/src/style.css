@@ -109,3 +109,10 @@ body,
 #app {
   height: 100%;
 }
+input[type=text] {
+  outline: none;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0);
+  padding:4px 3px 4px 0;
+  color:#ccc;
+}
