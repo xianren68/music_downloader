@@ -1,151 +1,192 @@
-export interface Albums {
-    id: string;
-    name: string;
-    type: string;
-  }
-  
-  interface ImgItems {
-    imgSizeType: string;
-    img: string;
-  }
-  
-  interface MvList {
-    id: string;
-    copyrightId: string;
-    resourceType: string;
-    price: string;
-    expireDate: string;
-    mvPicUrl: MvPicUrl[];
-    isInDAlbum: string;
-    playNum: string;
-    mvType: string;
-  }
-  
-  interface MvPicUrl {
-    imgSizeType: string;
-    img: string;
-    fileId: string;
-  }
-  
-  interface RateFormats {
-    resourceType: string;
-    formatType: string;
-    format: string;
-    size: string;
-    fileType?: string;
-    price: string;
-    showTag: string[];
-    androidFileType?: string;
-    iosFileType?: string;
-    iosSize?: string;
-    androidSize?: string;
-    iosFormat?: string;
-    androidFormat?: string;
-    iosAccuracyLevel?: string;
-    androidAccuracyLevel?: string;
-  }
-  
-  interface RelatedSongs {
-    resourceType: string;
-    resourceTypeName: string;
-    copyrightId: string;
-    productId: string;
-  }
-  
-export  interface Result {
-    id: string;
-    resourceType: string;
-    contentId: string;
-    copyrightId: string;
-    name: string;
-    highlightStr: string[];
-    singers: Singers[];
-    albums: Albums[];
-    lyricUrl: string;
-    trcUrl: string;
-    imgItems: ImgItems[];
-    televisionNames: string[];
-    tones: Tones[];
-    mvList?: MvList[];
-    relatedSongs: RelatedSongs[];
-    toneControl: string;
-    rateFormats: RateFormats[];
-    newRateFormats: RateFormats[];
-    songType: string;
-    isInDAlbum: string;
-    copyright: string;
-    digitalColumnId: string;
-    mrcurl: string;
-    songDescs: string;
-    songAliasName: string;
-    invalidateDate: string;
-    isInSalesPeriod: string;
-    dalbumId: string;
-    isInSideDalbum: string;
-    vipType: string;
-    chargeAuditions: string;
-    scopeOfcopyright: string;
-    mvCopyright?: string;
-    translateName?: string;
-    z3dCode?: Z3DCode;
-    tags?: string[];
-    movieNames?: string[];
-  }
-  
-  interface RootInterface {
-    code: string;
-    info: string;
-    songResultData: SongResultData;
-    tagSongResultData: TagSongResultData;
-    bestShowResultToneData: any;
-  }
-  
-export interface Singers {
-    id: string;
-    name: string;
-  }
-  
-  interface SongResultData {
-    totalCount: string;
-    correct: any[];
-    resultType: string;
-    isFromCache: string;
-    result: Result[];
-    tipStatus: string;
-  }
-  
-  interface TagSongResultData {
-    correct: any[];
-    result: any[];
-  }
-  
-  interface Tones {
-    id: string;
-    copyrightId: string;
-    price: string;
-    expireDate: string;
-  }
-  
-  interface Z3DCode {
-    resourceType: string;
-    formatType: string;
-    price: string;
-    androidFileType: string;
-    iosFileType: string;
-    iosSize: string;
-    androidSize: string;
-    iosFormat: string;
-    androidFormat: string;
-    androidFileKey: string;
-    iosFileKey: string;
-    h5Size: string;
-    h5Format: string;
-  }
+export interface Abslist {
+  AARTIST?: string;
+  ALBUM?: string;
+  ALBUMID?: string;
+  ALIAS?: string;
+  ARTIST?: string;
+  ARTISTID?: string;
+  CanSetRing?: string;
+  CanSetRingback?: string;
+  DC_TARGETID?: string;
+  DC_TARGETTYPE?: string;
+  DURATION?: string;
+  FARTIST?: string;
+  FORMAT?: string;
+  FSONGNAME?: string;
+  KMARK?: string;
+  MINFO?: string;
+  MUSICRID?: string;
+  MVFLAG?: string;
+  MVPIC?: string;
+  MVQUALITY?: string;
+  NAME?: string;
+  NEW?: string;
+  N_MINFO?: string;
+  ONLINE?: string;
+  PAY?: string;
+  PROVIDER?: string;
+  SONGNAME?: string;
+  SUBLIST?: Sublist[];
+  SUBTITLE?: string;
+  TAG?: string;
+  ad_subtype?: string;
+  ad_type?: string;
+  allartistid?: string;
+  audiobookpayinfo?: Audiobookpayinfo;
+  barrage?: string;
+  cache_status?: string;
+  content_type?: string;
+  fpay?: string;
+  hts_MVPIC?: string;
+  info?: string;
+  iot_info?: string;
+  isdownload?: string;
+  isshowtype?: string;
+  isstar?: string;
+  mvpayinfo?: Mvpayinfo;
+  nationid?: string;
+  opay?: string;
+  originalsongtype?: string;
+  overseas_copyright?: string;
+  overseas_pay?: string;
+  payInfo?: PayInfo;
+  react_type?: string;
+  spPrivilege?: string;
+  subsStrategy?: string;
+  subsText?: string;
+  terminal?: string;
+  tme_musician_adtype?: string;
+  tpay?: string;
+  web_albumpic_short?: string;
+  web_artistpic_short?: string;
+  web_timingonline?: string;
+}
 
- export interface SearchResult{
-    code:string,
-    info:string,
-    songResultData:SongResultData,
-    tagSongResultData:TagSongResultData,
-    bestShowResultToneData:any,
-  }
+interface Audiobookpayinfo {
+  download: string;
+  play: string;
+}
+
+interface FeeType {
+  album: string;
+  bookvip: string;
+  song: string;
+  vip: string;
+}
+
+interface Mvpayinfo {
+  download: string;
+  play: string;
+  vid: string;
+}
+
+interface PayInfo {
+  cannotDownload: string;
+  cannotOnlinePlay: string;
+  download: string;
+  feeType: FeeType;
+  limitfree: string;
+  listen_fragment: string;
+  local_encrypt: string;
+  ndown: string;
+  nplay: string;
+  overseas_ndown: string;
+  overseas_nplay: string;
+  paytagindex: Paytagindex;
+  play: string;
+  refrain_end: string;
+  refrain_start: string;
+  tips_intercept: string;
+}
+
+interface Paytagindex {
+  AR501: number;
+  DB: number;
+  F: number;
+  H: number;
+  HR: number;
+  L: number;
+  S: number;
+  ZP: number;
+  ZPGA201: number;
+  ZPGA501: number;
+  ZPLY: number;
+}
+
+export interface SearchResult {
+  ARTISTPIC: string;
+  HIT: string;
+  HITMODE: string;
+  HIT_BUT_OFFLINE: string;
+  MSHOW: string;
+  NEW: string;
+  PN: string;
+  RN: string;
+  SHOW: string;
+  TOTAL: string;
+  UK: string;
+  abslist: Abslist[];
+  searchgroup: string;
+}
+
+interface Sublist {
+  AARTIST: string;
+  ALBUM: string;
+  ALBUMID: string;
+  ALIAS: string;
+  ARTIST: string;
+  ARTISTID: string;
+  CanSetRing: string;
+  CanSetRingback: string;
+  DC_TARGETID: string;
+  DC_TARGETTYPE: string;
+  DURATION: string;
+  FARTIST: string;
+  FORMAT: string;
+  FSONGNAME: string;
+  KMARK: string;
+  MINFO: string;
+  MUSICRID: string;
+  MVFLAG: string;
+  MVPIC: string;
+  MVQUALITY: string;
+  NAME: string;
+  NEW: string;
+  N_MINFO: string;
+  ONLINE: string;
+  PAY: string;
+  PROVIDER: string;
+  SONGNAME: string;
+  SUBTITLE: string;
+  TAG: string;
+  ad_subtype: string;
+  ad_type: string;
+  allartistid: string;
+  audiobookpayinfo: Audiobookpayinfo;
+  barrage: string;
+  cache_status: string;
+  content_type: string;
+  fpay: string;
+  info: string;
+  iot_info: string;
+  isdownload: string;
+  isshowtype: string;
+  isstar: string;
+  mvpayinfo: Mvpayinfo;
+  nationid: string;
+  opay: string;
+  originalsongtype: string;
+  overseas_copyright: string;
+  overseas_pay: string;
+  payInfo: PayInfo;
+  react_type: string;
+  spPrivilege: string;
+  subsStrategy: string;
+  subsText: string;
+  terminal: string;
+  tme_musician_adtype: string;
+  tpay: string;
+  web_albumpic_short: string;
+  web_artistpic_short: string;
+  web_timingonline: string;
+}

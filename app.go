@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"music_downloader/config"
 	"music_downloader/global"
-	"music_downloader/model"
 	"net/http"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -65,14 +65,11 @@ func (a *App) SaveConfig(confi string) bool {
 }
 
 func (a *App) Search(pageNo int, keyWord string) string {
-	res, err := http.Get(fmt.Sprintf(global.SEARCHURL, pageNo, keyWord))
+	res, err := http.Get(fmt.Sprintf(global.SEARCHURL, keyWord, pageNo))
 	if err != nil {
 		return ""
 	}
 	defer res.Body.Close()
-	var result model.SearchRes
-	// js要解析有些地方还得加转义字符，先在后端转换一下
-	json.NewDecoder(res.Body).Decode(&result)
-	bytes, _ := json.Marshal(result)
+	bytes, _ := io.ReadAll(res.Body)
 	return string(bytes)
 }

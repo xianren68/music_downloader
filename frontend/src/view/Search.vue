@@ -13,43 +13,27 @@
                     <div class="download"></div>
                 </div>
                 <div class="item" v-for="(i,index) in ResultList" :key="index">
-                    <div class="name">{{i.name}}</div>
-                    <div class="author">{{showSignersOrAlbums(i.singers)}}</div>
-                    <div class="albums">{{showSignersOrAlbums(i.albums)}}</div>
-                    <div class="download"><button @click="dialogVisible=true;selected=index">下载</button></div>
+                    <div class="name">{{i.NAME}}</div>
+                    <div class="author">{{i.ARTIST}}</div>
+                    <div class="albums">{{i.ALBUM}}</div>
+                    <div class="download"><button @click="">下载</button></div>
                 </div>
             </div>
             <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="ResultList!=null"></Pagenation>
         </div>
-        <el-dialog
-        v-model="dialogVisible"
-        width="500"
-      >
-        <span>音质选择</span>
-        <template #footer>
-          <div class="dialog-footer">
-            <el-button @click="dialogVisible = false" type="success">无损</el-button>
-            <el-button type="primary" @click="dialogVisible = false">
-              高品
-            </el-button>
-          </div>
-        </template>
-      </el-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-import {Result, SearchResult,Singers,Albums } from '@/type'
+import {SearchResult,Abslist} from '@/type'
 import { Search } from '@/../wailsjs/go/main/App'
 import {ref} from 'vue'
 import { ElMessage } from 'element-plus'
 import Pagenation from '@/components/Pagenation.vue'
 const searchText = ref('')
-const ResultList = ref<Array<Result>|null>(null)
+const ResultList = ref<Array<Abslist>|null>(null)
 const total = ref(0)
 const pageNo = ref(1)
-// 选中要下载歌曲的索引
-const selected = ref(0)
 // 发送请求
 const search = async () => {
     if(searchText.value === ""){
@@ -62,22 +46,11 @@ const search = async () => {
         return
     }
     const result:SearchResult = JSON.parse(res)
-    if(result.code !== "000000"){
-        ElMessage.error(result.info)
-        return
-    }
-    if(result.songResultData.result.length === 0){
+    if(result.Abslist === 0){
         ElMessage.info("没有找到相关歌曲")
     }
-    total.value = +result.songResultData.totalCount
-    ResultList.value = result.songResultData.result
-}
-// 展示每个歌手
-const showSignersOrAlbums = (value:Array<Singers|Albums>):string => {
-    if(value.length === 0){
-        return value[0].name
-    }
-    return value.reduce((pre,cur) => pre+cur.name,"")
+    total.value = +result.TOTAL
+    ResultList.value = result.abslist
 }
 // 切换页码
 const changePage = (value:number) => {
@@ -87,9 +60,6 @@ const changePage = (value:number) => {
     pageNo.value = value
     search()
 }
-
-// 音质选择弹框
-const dialogVisible = ref(false)
 
 </script>
 
