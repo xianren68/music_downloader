@@ -25,6 +25,7 @@ const changePage = throttle((page:number)=>{
 .PageNation{
     height: 90%;
     margin-left: 20px;
+    margin-top:3%;
     width:40px;
     display: flex;
     flex-direction: column;

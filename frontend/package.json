@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/node": "^20.11.24",
     "element-plus": "^2.6.0",
+    "pinia": "^2.1.7",
     "sass": "^1.71.1",
     "scss": "^0.2.4",
     "unplugin-auto-import": "^0.17.5",

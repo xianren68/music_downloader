@@ -7,6 +7,7 @@ import (
 	"io"
 	"music_downloader/config"
 	"music_downloader/global"
+	"music_downloader/model"
 	"net/http"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -72,4 +73,15 @@ func (a *App) Search(pageNo int, keyWord string) string {
 	defer res.Body.Close()
 	bytes, _ := io.ReadAll(res.Body)
 	return string(bytes)
+}
+
+func (a *App) Download(name, author, id string) {
+	music := &model.Music{
+		Name:   name,
+		Author: author,
+		ID:     id,
+	}
+	// 添加新任务
+	model.Down.NewTask(music)
+
 }

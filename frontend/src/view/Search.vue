@@ -6,32 +6,32 @@
         </div>
         <div class="result">
             <div class="list">
-                <div class="head" v-if="ResultList!=null">
+                <div class="head" v-if="SearchStore().ResultList!=null">
                     <div class="name">名称</div>
                     <div class="author">作者</div>
                     <div class="albums">专辑</div>
                     <div class="download"></div>
                 </div>
-                <div class="item" v-for="(i,index) in ResultList" :key="index">
+                <div class="item" v-for="(i,index) in SearchStore().ResultList" :key="index">
                     <div class="name">{{i.NAME}}</div>
                     <div class="author">{{i.ARTIST}}</div>
                     <div class="albums">{{i.ALBUM}}</div>
-                    <div class="download"><button @click="">下载</button></div>
+                    <div class="download"><button @click="e=>download(index)">下载</button></div>
                 </div>
             </div>
-            <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="ResultList!=null"></Pagenation>
+            <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="SearchStore().ResultList!=null"></Pagenation>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import {SearchResult,Abslist} from '@/type'
-import { Search } from '@/../wailsjs/go/main/App'
-import {ref} from 'vue'
+import {SearchResult} from '@/type'
+import { Search,Download } from '@/../wailsjs/go/main/App'
+import {ref,onBeforeUnmount} from 'vue'
 import { ElMessage } from 'element-plus'
+import {SearchStore} from '@/store'
 import Pagenation from '@/components/Pagenation.vue'
-const searchText = ref('')
-const ResultList = ref<Array<Abslist>|null>(null)
+const searchText = ref(SearchStore().searchText)
 const total = ref(0)
 const pageNo = ref(1)
 // 发送请求
@@ -46,11 +46,11 @@ const search = async () => {
         return
     }
     const result:SearchResult = JSON.parse(res)
-    if(result.Abslist === 0){
+    if(result.abslist.length === 0){
         ElMessage.info("没有找到相关歌曲")
     }
     total.value = +result.TOTAL
-    ResultList.value = result.abslist
+    SearchStore().ResultList = result.abslist
 }
 // 切换页码
 const changePage = (value:number) => {
@@ -60,6 +60,16 @@ const changePage = (value:number) => {
     pageNo.value = value
     search()
 }
+// 下载
+const download = (index:number) => {
+    const info = SearchStore().ResultList![index]
+    // 从队列中去除
+    SearchStore().ResultList?.splice(index,1)
+    Download(info.NAME!,info.ARTIST!,info.MUSICRID!.split("_")[1])
+}
+onBeforeUnmount(() => {
+    SearchStore().searchText = searchText.value
+})
 
 </script>
 
@@ -100,7 +110,6 @@ const changePage = (value:number) => {
         width: 100%;
         flex-grow: 1;
         display: flex;
-        align-items: center;
         .list {
             margin-left: 60px;
             margin-top: 20px;
