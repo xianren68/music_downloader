@@ -2,12 +2,15 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"music_downloader/global"
 	"net/http"
 	"os"
 	"sync"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Music 音乐.
@@ -15,6 +18,7 @@ type Music struct {
 	Name   string `json:"name"`
 	Author string `json:"author"`
 	ID     string `json:"id"`
+	ALBUM  string `json:"album"`
 }
 
 // Node 链表节点.
@@ -22,6 +26,13 @@ type Node struct {
 	Value *Music
 	Next  *Node
 	Prev  *Node
+}
+
+// Progress 返回下载进度.
+type Progress struct {
+	ID       string  `json:"id"`
+	Status   bool    `json:"status"`
+	Progress float64 `json:"progress"`
 }
 
 // List 双向链表.
@@ -118,6 +129,7 @@ func NewDownload() *Download {
 	}
 }
 
+// NewTask 添加新的下载任务到队列
 func (d *Download) NewTask(value *Music) {
 	// 添加下载任务到队列
 	d.lock.Lock()
@@ -153,27 +165,40 @@ func (d *Download) NewTask(value *Music) {
 	d.startLock.Unlock()
 }
 
+// ExportList 导出下载队列
+func (d *Download) ExportList() []*Music {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	var result []*Music
+	for _, v := range d.waitList.hash {
+		result = append(result, v.Value)
+	}
+	return result
+}
+
+var ctx = context.Background()
+
 // 下载音乐
 func download(task chan struct{}, value *Music) {
 	url := fmt.Sprintf(global.DOWNLOADURL, value.ID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-
+		runtime.EventsEmit(ctx, "error", "请求出错")
 	}
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		runtime.EventsEmit(ctx, "error", "请求出错")
 	}
 	// 获取歌曲对应的url
 	trueUrl, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
+		runtime.EventsEmit(ctx, "error", "请求出错")
 	}
 	res, err = http.Get(string(trueUrl))
 	if err != nil {
-		fmt.Println(err)
+		runtime.EventsEmit(ctx, "error", "请求出错")
 	}
 	defer res.Body.Close()
 	// 要保存的文件名
@@ -194,17 +219,35 @@ func download(task chan struct{}, value *Music) {
 		// 创建文件
 		file, _ := os.Create(folder + "\\" + fileName)
 		defer file.Close()
+		// 请求长度
+		leng := res.ContentLength
 		// 写入文件
 		bytes := [1024]byte{}
+		i := 0
+		var Pro = &Progress{
+			ID: value.ID,
+		}
 		for {
 			n, err := res.Body.Read(bytes[:])
 			if n == 0 {
+				Pro.Progress = 100
+				Pro.Status = true
+				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 				break
 			}
 			if err != nil && err != io.EOF {
+				Pro.Progress = 100
+				Pro.Status = true
+				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 				break
 			}
+			if i != 0 && i%10 == 0 {
+				Pro.Progress = float64(i) / float64(leng)
+				Pro.Status = false
+				runtime.EventsEmit(ctx, "downloadProgress", Pro)
+			}
 			file.Write(bytes[:n])
+			i++
 		}
 
 	}

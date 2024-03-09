@@ -4,14 +4,14 @@
             <p class="title">下载设置</p>
             <div class="savePath">
                 <p class="label">保存路径：</p>
-                <input type="text" class="input" v-model="config.Save.Path">
+                <input type="text" class="input" v-model="configStore.config.Save.Path">
                 <button class="select" @click="selectPath">选择目录</button>
             </div>
             <div class="sort">
                 <p class="label">下载分类:</p>
-                <input type="radio"  :checked="config.Save.isSortByAuthor" name="sort" @change="config.Save.isSortByAuthor=true">
+                <input type="radio"  :checked="configStore.config.Save.IsSortByAuthor" name="sort" @change="configStore.config.Save.IsSortByAuthor=true">
                 <label class="label" for="sort">按作者分类</label>
-                <input type="radio" :checked="!config.Save.isSortByAuthor" name="notsort" @change="config.Save.isSortByAuthor=false"> 
+                <input type="radio" :checked="!configStore.config.Save.IsSortByAuthor" name="notsort" @change="configStore.config.Save.IsSortByAuthor=false"> 
                 <label class="label" for="notsort">不分类</label>
             </div>
         </div>
@@ -19,25 +19,27 @@
 </template>
 
 <script setup lang="ts">
-import type { allConfig } from '@/type'
 import { GetConfig,OpenDirDialog,SaveConfig } from '@/../wailsjs/go/main/App'
-import { ref,onUnmounted} from 'vue'
+import {onUnmounted,toRaw} from 'vue'
 import {ElMessage} from 'element-plus'
+import { ConfigStore } from '@/store'
+const configStore = ConfigStore()
 // 配置信息
-const config = ref<allConfig>({Save:{Path:'',isSortByAuthor:false}})
 GetConfig().then(res=>{
-    config.value = JSON.parse(res)
+    configStore.config = JSON.parse(res)
+    console.log(res)
+    console.log(configStore.config)
 })
 // 选择目录
 const selectPath = async () => {
     // webview自带的api无法获取文件夹绝对路径，需要使用wails的api
     const path = await OpenDirDialog()
     console.log(path)
-    config.value.Save.Path = path
+    configStore.config.Save.Path = path
 }
 // 向后台同步配置
 onUnmounted(async ()=>{
-    if (!await SaveConfig(JSON.stringify(config.value))){
+    if (!await SaveConfig(JSON.stringify(toRaw(configStore.config)))){
         ElMessage.error('保存配置失败')
     }
 })

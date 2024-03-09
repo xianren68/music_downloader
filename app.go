@@ -9,6 +9,7 @@ import (
 	"music_downloader/global"
 	"music_downloader/model"
 	"net/http"
+	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -27,16 +28,20 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	readTemp()
 }
+
+// 关闭软件生命周期钩子.
 func (a *App) shutdown(ctx context.Context) {
 	global.GlobalConfig.SaveConf()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) onBeforeClose(ctx context.Context) (prevent bool) {
+	time.Sleep(time.Millisecond * 100)
+	return false
 }
 
+// GetConfig 获取配置文件.
 func (a *App) GetConfig() string {
 	jsonData, err := json.Marshal(global.GlobalConfig)
 	if err != nil {
@@ -44,6 +49,8 @@ func (a *App) GetConfig() string {
 	}
 	return string(jsonData)
 }
+
+// OpenDirDialog 选择要存储的文件.
 func (a *App) OpenDirDialog() string {
 	s, _ := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
 		DefaultDirectory: "D:\\",
@@ -51,6 +58,7 @@ func (a *App) OpenDirDialog() string {
 	return s
 }
 func (a *App) SaveConfig(confi string) bool {
+	fmt.Println("保存配置文件")
 	var conf config.Config
 	err := json.Unmarshal([]byte(confi), &conf)
 	// 保存配置失败
@@ -68,6 +76,7 @@ func (a *App) SaveConfig(confi string) bool {
 func (a *App) Search(pageNo int, keyWord string) string {
 	res, err := http.Get(fmt.Sprintf(global.SEARCHURL, keyWord, pageNo))
 	if err != nil {
+		runtime.EventsEmit(a.ctx, "error", "请求出错")
 		return ""
 	}
 	defer res.Body.Close()
@@ -75,11 +84,12 @@ func (a *App) Search(pageNo int, keyWord string) string {
 	return string(bytes)
 }
 
-func (a *App) Download(name, author, id string) {
+func (a *App) Download(name, author, id, album string) {
 	music := &model.Music{
 		Name:   name,
 		Author: author,
 		ID:     id,
+		ALBUM:  album,
 	}
 	// 添加新任务
 	model.Down.NewTask(music)

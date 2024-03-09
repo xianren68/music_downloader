@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"os"
 
 	"music_downloader/global"
+	"music_downloader/model"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gopkg.in/yaml.v3"
 )
 
@@ -38,4 +42,33 @@ func init() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+// readTemp 获取缓存文件.
+func readTemp() {
+	var ctx = context.Background()
+	// 缓存文件是否存在
+	_, err := os.Stat("./temp.json")
+	if os.IsNotExist(err) {
+		return
+	}
+	// 读取缓存文件
+	data, err := os.ReadFile("./temp.json")
+	if err != nil {
+		runtime.EventsEmit(ctx, "warning", "读取缓存文件失败")
+		return
+	}
+	var tempData []*model.Music
+	// 解析缓存文件
+	err = json.Unmarshal(data, &tempData)
+	if err != nil {
+		runtime.EventsEmit(ctx, "warning", "解析缓存文件失败")
+		return
+	}
+	runtime.EventsEmit(ctx, "info", "继续下载未完成任务")
+	// 更新全局变量
+	for _, v := range tempData {
+		model.Down.NewTask(v)
+	}
+	runtime.EventsEmit(ctx, "continueDownload", model.Down.ExportList())
 }

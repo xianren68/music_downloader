@@ -6,20 +6,20 @@
         </div>
         <div class="result">
             <div class="list">
-                <div class="head" v-if="SearchStore().ResultList!=null">
+                <div class="head" v-if="searchStore.ResultList.length != 0">
                     <div class="name">名称</div>
                     <div class="author">作者</div>
                     <div class="albums">专辑</div>
                     <div class="download"></div>
                 </div>
-                <div class="item" v-for="(i,index) in SearchStore().ResultList" :key="index">
+                <div class="item" v-for="(i,index) in searchStore.ResultList" :key="index">
                     <div class="name">{{i.NAME}}</div>
                     <div class="author">{{i.ARTIST}}</div>
                     <div class="albums">{{i.ALBUM}}</div>
                     <div class="download"><button @click="e=>download(index)">下载</button></div>
                 </div>
             </div>
-            <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="SearchStore().ResultList!=null"></Pagenation>
+            <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="searchStore.ResultList.length != 0"></Pagenation>
         </div>
     </div>
 </template>
@@ -31,9 +31,10 @@ import {ref,onBeforeUnmount} from 'vue'
 import { ElMessage } from 'element-plus'
 import {SearchStore} from '@/store'
 import Pagenation from '@/components/Pagenation.vue'
-const searchText = ref(SearchStore().searchText)
 const total = ref(0)
 const pageNo = ref(1)
+const searchStore = SearchStore()
+const searchText = ref(searchStore.searchText)
 // 发送请求
 const search = async () => {
     if(searchText.value === ""){
@@ -50,7 +51,7 @@ const search = async () => {
         ElMessage.info("没有找到相关歌曲")
     }
     total.value = +result.TOTAL
-    SearchStore().ResultList = result.abslist
+    searchStore.ResultList = result.abslist
 }
 // 切换页码
 const changePage = (value:number) => {
@@ -62,13 +63,13 @@ const changePage = (value:number) => {
 }
 // 下载
 const download = (index:number) => {
-    const info = SearchStore().ResultList![index]
+    const info = searchStore.ResultList![index]
     // 从队列中去除
-    SearchStore().ResultList?.splice(index,1)
-    Download(info.NAME!,info.ARTIST!,info.MUSICRID!.split("_")[1])
+    searchStore.ResultList.splice(index,1)
+    Download(info.NAME!,info.ARTIST!,info.MUSICRID!.split("_")[1],info.ALBUM!)
 }
 onBeforeUnmount(() => {
-    SearchStore().searchText = searchText.value
+    searchStore.searchText = searchText.value
 })
 
 </script>
