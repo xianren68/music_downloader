@@ -3,7 +3,7 @@ import { ElMessage } from "element-plus"
 import { EventsEmit, EventsOn } from "@/../wailsjs/runtime"
 import { DownStore } from "@/store"
 import { DownloadInt, ProgressInt, Music } from "@/type"
-import { SaveConfig} from "wailsjs/go/main/App"
+import { SaveConfig} from "@/../wailsjs/go/main/App"
 import { toRaw } from "vue"
 // 消息弹窗事件
 EventsOn("info", (message: string) => {
@@ -27,6 +27,7 @@ EventsOn("continueDownload", (list: Array<Music>) => {
     for (let i of list) {
         const downItem: DownloadInt = { ...i, isStart: false, progress: 0 }
         DownStore().downList.set(i.id, downItem)
+        DownStore().size = DownStore().downList.size
     }
 })
 
@@ -39,6 +40,7 @@ EventsOn("downloadProgress", (progressInfo: ProgressInt) => {
         // 下载完成
         ElMessage.success(`${value?.name}下载完成`)
         downStore.downList.delete(progressInfo.id)
+        downStore.size--
     }
     // 修改下载进度
     value!.progress = progressInfo.progress
@@ -47,18 +49,13 @@ EventsOn("downloadProgress", (progressInfo: ProgressInt) => {
 })
 
 // 收尾工作
-// EventsOn("ending", async () => {
-//     const configStore = ConfigStore()
-//     // 更新后端配置
-//     await SaveConfig(JSON.stringify(toRaw(configStore.config)))
-    
-// })
-
-window.addEventListener("beforeunload", async() => {
-    // 关闭前保存配置
+EventsOn("ending", () => {
     const configStore = ConfigStore()
     // 更新后端配置
-    await SaveConfig(JSON.stringify(toRaw(configStore.config)))
+    SaveConfig(JSON.stringify(toRaw(configStore.config)))
+    // 触发后端收尾
+    EventsEmit("end",null)
+    
 })
 
 // 需要让这个文件中的代码执行

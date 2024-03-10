@@ -9,7 +9,6 @@ import (
 	"music_downloader/global"
 	"music_downloader/model"
 	"net/http"
-	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -28,7 +27,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	readTemp()
+	a.readTemp()
 }
 
 // 关闭软件生命周期钩子.
@@ -36,8 +35,8 @@ func (a *App) shutdown(ctx context.Context) {
 	global.GlobalConfig.SaveConf()
 }
 
-func (a *App) onBeforeClose(ctx context.Context) (prevent bool) {
-	time.Sleep(time.Millisecond * 100)
+func (a *App) onBeforeClose(ctx context.Context) bool {
+	runtime.EventsEmit(a.ctx, "ending", nil)
 	return false
 }
 
@@ -58,7 +57,6 @@ func (a *App) OpenDirDialog() string {
 	return s
 }
 func (a *App) SaveConfig(confi string) bool {
-	fmt.Println("保存配置文件")
 	var conf config.Config
 	err := json.Unmarshal([]byte(confi), &conf)
 	// 保存配置失败
@@ -92,6 +90,6 @@ func (a *App) Download(name, author, id, album string) {
 		ALBUM:  album,
 	}
 	// 添加新任务
-	model.Down.NewTask(music)
+	model.Down.NewTask(a.ctx, music)
 
 }

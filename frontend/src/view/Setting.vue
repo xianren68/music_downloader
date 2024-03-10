@@ -27,14 +27,11 @@ const configStore = ConfigStore()
 // 配置信息
 GetConfig().then(res=>{
     configStore.config = JSON.parse(res)
-    console.log(res)
-    console.log(configStore.config)
 })
 // 选择目录
 const selectPath = async () => {
     // webview自带的api无法获取文件夹绝对路径，需要使用wails的api
     const path = await OpenDirDialog()
-    console.log(path)
     configStore.config.Save.Path = path
 }
 // 向后台同步配置

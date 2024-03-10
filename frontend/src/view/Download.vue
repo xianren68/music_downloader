@@ -2,7 +2,7 @@
     <div class="download">
         <div class="head">
             <div class="title">下载队列</div>
-            <div class="quantity"><span>{{downStore.downList.size}}</span>个下载任务</div>
+            <div class="quantity"><span>{{downStore.size}}</span>个下载任务</div>
         </div>
         <div class="content">
 

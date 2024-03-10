@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"os"
 
@@ -45,8 +44,7 @@ func init() {
 }
 
 // readTemp 获取缓存文件.
-func readTemp() {
-	var ctx = context.Background()
+func (a *App) readTemp() {
 	// 缓存文件是否存在
 	_, err := os.Stat("./temp.json")
 	if os.IsNotExist(err) {
@@ -55,20 +53,20 @@ func readTemp() {
 	// 读取缓存文件
 	data, err := os.ReadFile("./temp.json")
 	if err != nil {
-		runtime.EventsEmit(ctx, "warning", "读取缓存文件失败")
+		runtime.EventsEmit(a.ctx, "warning", "读取缓存文件失败")
 		return
 	}
 	var tempData []*model.Music
 	// 解析缓存文件
 	err = json.Unmarshal(data, &tempData)
 	if err != nil {
-		runtime.EventsEmit(ctx, "warning", "解析缓存文件失败")
+		runtime.EventsEmit(a.ctx, "warning", "解析缓存文件失败")
 		return
 	}
-	runtime.EventsEmit(ctx, "info", "继续下载未完成任务")
+	runtime.EventsEmit(a.ctx, "info", "继续下载未完成任务")
 	// 更新全局变量
 	for _, v := range tempData {
-		model.Down.NewTask(v)
+		model.Down.NewTask(a.ctx, v)
 	}
-	runtime.EventsEmit(ctx, "continueDownload", model.Down.ExportList())
+	runtime.EventsEmit(a.ctx, "continueDownload", model.Down.ExportList())
 }

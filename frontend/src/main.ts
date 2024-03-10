@@ -5,7 +5,7 @@ import 'element-plus/theme-chalk/src/message.scss'
 import 'element-plus/theme-chalk/src/index.scss'
 import router from '@/routes'
 import {createPinia} from 'pinia'
-import _ from '@/events'
+import "@/events"
 
 const app = createApp(App)
 const pinia = createPinia()

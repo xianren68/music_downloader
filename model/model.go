@@ -130,7 +130,7 @@ func NewDownload() *Download {
 }
 
 // NewTask 添加新的下载任务到队列
-func (d *Download) NewTask(value *Music) {
+func (d *Download) NewTask(ctx context.Context, value *Music) {
 	// 添加下载任务到队列
 	d.lock.Lock()
 	d.waitList.AddNode(value)
@@ -154,7 +154,7 @@ func (d *Download) NewTask(value *Music) {
 				// 任务添加到管道
 				task <- struct{}{}
 				// 等待到有空闲，执行下载任务
-				go download(task, value.Value)
+				go download(ctx, task, value.Value)
 			}
 			// 修改状态
 			d.startLock.Lock()
@@ -176,10 +176,8 @@ func (d *Download) ExportList() []*Music {
 	return result
 }
 
-var ctx = context.Background()
-
 // 下载音乐
-func download(task chan struct{}, value *Music) {
+func download(ctx context.Context, task chan struct{}, value *Music) {
 	url := fmt.Sprintf(global.DOWNLOADURL, value.ID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -241,8 +239,8 @@ func download(task chan struct{}, value *Music) {
 				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 				break
 			}
-			if i != 0 && i%10 == 0 {
-				Pro.Progress = float64(i) / float64(leng)
+			if i != 0 && i%1024 == 0 {
+				Pro.Progress = float64(i) / float64(leng/1024)
 				Pro.Status = false
 				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 			}

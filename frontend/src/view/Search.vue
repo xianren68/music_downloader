@@ -29,11 +29,12 @@ import {SearchResult} from '@/type'
 import { Search,Download } from '@/../wailsjs/go/main/App'
 import {ref,onBeforeUnmount} from 'vue'
 import { ElMessage } from 'element-plus'
-import {SearchStore} from '@/store'
+import {SearchStore,DownStore} from '@/store'
 import Pagenation from '@/components/Pagenation.vue'
 const total = ref(0)
 const pageNo = ref(1)
 const searchStore = SearchStore()
+const downloadStore = DownStore()
 const searchText = ref(searchStore.searchText)
 // 发送请求
 const search = async () => {
@@ -67,6 +68,18 @@ const download = (index:number) => {
     // 从队列中去除
     searchStore.ResultList.splice(index,1)
     Download(info.NAME!,info.ARTIST!,info.MUSICRID!.split("_")[1],info.ALBUM!)
+    const obj = {
+        id:info.MUSICRID!.split("_")[1]!,
+        name:info.NAME!,
+        album:info.ALBUM!,
+        isStart:false,
+        author:info.AARTIST!,
+        progress:0,
+        
+    }
+    // 添加到下载队列
+    downloadStore.downList.set(obj.id,obj)
+    downloadStore.size++
 }
 onBeforeUnmount(() => {
     searchStore.searchText = searchText.value
