@@ -34,13 +34,13 @@ EventsOn("continueDownload", (list: Array<Music>) => {
 // 下载进度事件
 EventsOn("downloadProgress", (progressInfo: ProgressInt) => {
     const downStore = DownStore()
-    console.log(progressInfo)
     const value = downStore.downList.get(progressInfo.id)
     if (progressInfo.status) {
         // 下载完成
         ElMessage.success(`${value?.name}下载完成`)
         downStore.downList.delete(progressInfo.id)
         downStore.size--
+        return 
     }
     // 修改下载进度
     value!.progress = progressInfo.progress

@@ -83,6 +83,7 @@ const download = (index:number) => {
 }
 onBeforeUnmount(() => {
     searchStore.searchText = searchText.value
+    console.log(downloadStore.downList)
 })
 
 </script>
