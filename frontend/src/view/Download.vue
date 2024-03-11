@@ -12,7 +12,7 @@
                     <div>作者：{{i.author}}</div>
                 </div>
                 <div class="progress" v-if="i.isStart">
-                    <el-progress :percentage="i.progress" color="#008c8c" />
+                    <el-progress :percentage="i.progress*100" color="#008c8c" />
                 </div>
             </div>
         </div>
@@ -21,12 +21,7 @@
 
 <script setup lang="ts">
 import { DownStore } from '@/store'
-import {watch,ref} from 'vue'
 const downStore = DownStore()
-// const values = ref(downStore.downList.values())
-// watch (()=>downStore.downList,()=>{
-//     values.value = downStore.downList.values()
-// })
 </script>
 
 <style lang="scss" scoped>

@@ -228,13 +228,13 @@ func download(ctx context.Context, task chan struct{}, value *Music) {
 		for {
 			n, err := res.Body.Read(bytes[:])
 			if n == 0 {
-				Pro.Progress = 100
+				Pro.Progress = 1
 				Pro.Status = true
 				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 				break
 			}
 			if err != nil && err != io.EOF {
-				Pro.Progress = 100
+				Pro.Progress = 1
 				Pro.Status = true
 				runtime.EventsEmit(ctx, "downloadProgress", Pro)
 				break
