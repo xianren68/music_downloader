@@ -35,6 +35,7 @@ EventsOn("continueDownload", (list: Array<Music>) => {
 EventsOn("downloadProgress", (progressInfo: ProgressInt) => {
     const downStore = DownStore()
     const value = downStore.downList.get(progressInfo.id)
+    console.log(value?.name)
     if (progressInfo.status) {
         // 下载完成
         ElMessage.success(`${value?.name}下载完成`)

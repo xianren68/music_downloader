@@ -1,12 +1,12 @@
 <template>
     <div class="PageNation">
-        <div class="up" @click="changePage(current!-1)">
+        <div class="up" @click="changePage(false)">
             👆
         </div>
         <div class="line"></div>
-        <div class="page">{{current}}/{{Math.ceil(total/20)}}</div>
+        <div class="page">{{searchStore.page}}/{{Math.ceil(searchStore.total/20)}}</div>
         <div class="line"></div>
-        <div class="down" @click="changePage(current!+1)">
+        <div class="down" @click="changePage(true)">
             👇
         </div>
     </div>
@@ -14,10 +14,20 @@
 
 <script setup lang="ts">
 import { throttle } from '@/utils'
-defineProps({total:Number,current:Number})
+import { SearchStore } from '@/store'
+const searchStore = SearchStore()
 const emit = defineEmits(['changePage'])
-const changePage = throttle((page:number)=>{
-    emit('changePage',page)
+const changePage = throttle((type:boolean)=>{
+    const value = searchStore.page
+    if(type){
+        searchStore.page = searchStore.page == Math.ceil(searchStore.total/20)?searchStore.page:searchStore.page+1
+    }else {
+        searchStore.page = searchStore.page == 1?searchStore.page:searchStore.page-1
+    }
+    if(value != searchStore.page){
+        emit('changePage')
+        console.log('cfdf')
+    }
 },500)
 </script>
 

@@ -16,7 +16,7 @@ import Aside from '@/components/Aside.vue'
   display: flex;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(to right, #2c3e50,#bdc3c7);
+  background: #fff;
   &::before{
     content: '';
         position: absolute;

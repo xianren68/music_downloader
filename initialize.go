@@ -50,6 +50,8 @@ func (a *App) readTemp() {
 	if os.IsNotExist(err) {
 		return
 	}
+	// 删除缓存文件
+	defer os.Remove("./temp.json")
 	// 读取缓存文件
 	data, err := os.ReadFile("./temp.json")
 	if err != nil {

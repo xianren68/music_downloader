@@ -19,7 +19,7 @@
                     <div class="download"><button @click="e=>download(index)">下载</button></div>
                 </div>
             </div>
-            <Pagenation :total="total" :current="pageNo" @changePage="changePage" v-if="searchStore.ResultList.length != 0"></Pagenation>
+            <Pagenation v-if="searchStore.ResultList.length != 0" @changePage="changePage"></Pagenation>
         </div>
     </div>
 </template>
@@ -31,8 +31,6 @@ import {ref,onBeforeUnmount} from 'vue'
 import { ElMessage } from 'element-plus'
 import {SearchStore,DownStore} from '@/store'
 import Pagenation from '@/components/Pagenation.vue'
-const total = ref(0)
-const pageNo = ref(1)
 const searchStore = SearchStore()
 const downloadStore = DownStore()
 const searchText = ref(searchStore.searchText)
@@ -42,7 +40,7 @@ const search = async () => {
         return
     }
     // 前端发送有跨域问题，到后端去请求
-    const res = await Search(pageNo.value,searchText.value)
+    const res = await Search(searchStore.page,searchText.value)
     if(res === ""){
         ElMessage.error("请求出错")
         return
@@ -51,15 +49,11 @@ const search = async () => {
     if(result.abslist.length === 0){
         ElMessage.info("没有找到相关歌曲")
     }
-    total.value = +result.TOTAL
+    searchStore.total = +result.TOTAL
     searchStore.ResultList = result.abslist
 }
 // 切换页码
-const changePage = (value:number) => {
-    if(value < 1 || value > Math.ceil(total.value / 20)){
-        return
-    }
-    pageNo.value = value
+const changePage = () => {
     search()
 }
 // 下载
@@ -103,7 +97,7 @@ onBeforeUnmount(() => {
             box-sizing: border-box;
             width: 400px;
             height: 30px;
-            border: 1px solid #ccc;
+            border: 1px solid #000;
             border-right: none;
             border-radius: 5px 0 0 5px;
             padding-left: 10px;
@@ -113,7 +107,7 @@ onBeforeUnmount(() => {
             box-sizing: border-box;
             width:80px;
             text-align: center;
-            border:1px solid #ccc;
+            border:1px solid #000;
             background-color:rgba(234,233,235,.6);
             border-radius:0 5px 5px 0;
             filter: blur(.3px);
@@ -133,7 +127,7 @@ onBeforeUnmount(() => {
                 height: 25px;
                 line-height: 25px;
                 font-size: 14px;
-                color: #cfc;
+                color: #666;
                 &>div{
                     padding-left: 30px;
                     box-sizing: border-box;
@@ -145,15 +139,15 @@ onBeforeUnmount(() => {
                         background-color: rgba(0,0,0,0);
                         font-size: 12px;
                         margin-top: 2px;
-                        color:#fff;
+                        color:blue;
                         border: none;
-                        border-bottom: 1px solid #fcf;
                         
                     }
                 }
             }
             .head{
-                color: #fff;
+                margin-bottom: 10px;
+                color: #444;
             }
         }
     }

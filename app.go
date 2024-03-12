@@ -27,17 +27,23 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.readTemp()
 }
 
 // 关闭软件生命周期钩子.
 func (a *App) shutdown(ctx context.Context) {
+	model.Down.End()
 	global.GlobalConfig.SaveConf()
 }
 
 func (a *App) onBeforeClose(ctx context.Context) bool {
 	runtime.EventsEmit(a.ctx, "ending", nil)
 	return false
+}
+
+// 前端加载完成事件
+func (a *App) OnDomReady(ctx context.Context) {
+	// 获取未完成的下载缓存
+	a.readTemp()
 }
 
 // GetConfig 获取配置文件.

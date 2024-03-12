@@ -2,7 +2,7 @@
     <div class="download">
         <div class="head">
             <div class="title">下载队列</div>
-            <div class="quantity"><span>{{downStore.size}}</span>个下载任务</div>
+            <div class="quantity"><span>{{downStore.size}}</span>&nbsp;个下载任务</div>
         </div>
         <div class="content">
             <div class="item" v-for="i in downStore.downList.values()" :key="i.id">
@@ -12,7 +12,7 @@
                     <div>作者：{{i.author}}</div>
                 </div>
                 <div class="progress" v-if="i.isStart">
-                    <el-progress :percentage="i.progress*100" color="#008c8c" />
+                    <el-progress :percentage="Math.floor(i.progress*100)" color="#008c8c" />
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@ const downStore = DownStore()
             font-size: 14px;
             color: #999;
             span {
-                color: #333;
+                color: #000;
             }
         }
     }
@@ -62,7 +62,6 @@ const downStore = DownStore()
             border-bottom: 1px solid #eee;
             .info{
                 display: flex;
-                justify-content: space-around;
             }
             .progress{
                 width: 100%;

@@ -3,6 +3,7 @@ package model
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"music_downloader/global"
@@ -112,8 +113,8 @@ type Download struct {
 	startLock sync.Mutex
 	// 下载锁
 	lock sync.Mutex
-	// 弹出消息管道
-	popChan chan *Music
+	// 缓存管道（用于保存再关闭时还未完成的任务）
+	tempChan chan *Music
 }
 
 var Down = NewDownload()
@@ -122,7 +123,7 @@ var Down = NewDownload()
 func NewDownload() *Download {
 	return &Download{
 		waitList:  InitList(),
-		popChan:   make(chan *Music, 5),
+		tempChan:  make(chan *Music, 5),
 		startLock: sync.Mutex{},
 		lock:      sync.Mutex{},
 		isStart:   false,
@@ -139,22 +140,35 @@ func (d *Download) NewTask(ctx context.Context, value *Music) {
 	// 加锁
 	if !d.isStart {
 		d.isStart = true
+		// 开启控制下载协程
 		go func() {
 			// 任务队列，同时只能有4个协程下载
 			task := make(chan struct{}, 4)
+			wg := sync.WaitGroup{}
 			for {
 				// 加锁获取等待队列中的任务
 				d.lock.Lock()
 				if d.waitList.Size() == 0 {
+					// 没有任务了
 					d.lock.Unlock()
-					break
+					// 等待剩余协程全部完成
+					wg.Wait()
+					// 是否有新任务出现
+					d.lock.Lock()
+					if d.waitList.Size() == 0 {
+						d.lock.Unlock()
+						// 没有则关闭控制下载协程
+						break
+					}
+					d.lock.Unlock()
+					continue
 				}
 				value := d.waitList.PopNode()
 				d.lock.Unlock()
 				// 任务添加到管道
 				task <- struct{}{}
 				// 等待到有空闲，执行下载任务
-				go download(ctx, task, value.Value)
+				go download(ctx, task, value.Value, d.tempChan, &wg)
 			}
 			// 修改状态
 			d.startLock.Lock()
@@ -176,8 +190,42 @@ func (d *Download) ExportList() []*Music {
 	return result
 }
 
-// 下载音乐
-func download(ctx context.Context, task chan struct{}, value *Music) {
+func (d *Download) End() {
+	// 关闭控制下载协程
+	d.startLock.Lock()
+	d.isStart = false
+	d.startLock.Unlock()
+	// 取出所有值
+	tempJson := d.ExportList()
+	d.lock.Lock()
+	d.waitList.size = 0
+	d.lock.Unlock()
+label:
+	for {
+		select {
+		case v, ok := <-d.tempChan:
+			if ok {
+				tempJson = append(tempJson, v)
+			}
+		default:
+			break label
+		}
+
+	}
+	if len(tempJson) > 0 {
+		fmt.Println("下载完成，正在保存数据...")
+		saveTemp(tempJson)
+	}
+
+}
+
+// download 下载音乐.
+func download(ctx context.Context, task chan struct{}, value *Music, temp chan *Music, wg *sync.WaitGroup) {
+	// 执行前保存到缓存管道
+	temp <- value
+	// 添加一个等待协程
+	wg.Add(1)
+	defer wg.Done()
 	url := fmt.Sprintf(global.DOWNLOADURL, value.ID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -212,13 +260,13 @@ func download(ctx context.Context, task chan struct{}, value *Music) {
 		// 创建文件夹
 		os.Mkdir(folder, os.ModePerm)
 	}
-	_, err = os.Stat(folder + "\\" + fileName)
-	if os.IsNotExist(err) {
+	orifile, err := os.Stat(folder + "\\" + fileName)
+	// 请求长度
+	leng := res.ContentLength
+	if os.IsNotExist(err) || orifile.Size() != leng {
 		// 创建文件
-		file, _ := os.Create(folder + "\\" + fileName)
+		file, _ := os.OpenFile(folder+"\\"+fileName, os.O_CREATE|os.O_RDWR, 0666)
 		defer file.Close()
-		// 请求长度
-		leng := res.ContentLength
 		// 写入文件
 		bytes := [1024]byte{}
 		i := 0
@@ -247,9 +295,19 @@ func download(ctx context.Context, task chan struct{}, value *Music) {
 			file.Write(bytes[:n])
 			i++
 		}
-
+	} else if orifile.Size() == leng {
+		runtime.EventsEmit(ctx, "info", value.Name+"已存在")
 	}
 
-	// 任务完成
+	// 任务完成，从缓存管道弹出值
+	<-temp
 	<-task
+}
+
+// saveTemp 存储缓存.
+func saveTemp(value []*Music) {
+	file, _ := os.Create("./temp.json")
+	defer file.Close()
+	data, _ := json.Marshal(value)
+	file.Write(data)
 }

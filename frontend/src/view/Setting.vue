@@ -19,15 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { GetConfig,OpenDirDialog,SaveConfig } from '@/../wailsjs/go/main/App'
+import {OpenDirDialog,SaveConfig } from '@/../wailsjs/go/main/App'
 import {onUnmounted,toRaw} from 'vue'
 import {ElMessage} from 'element-plus'
 import { ConfigStore } from '@/store'
 const configStore = ConfigStore()
-// 配置信息
-GetConfig().then(res=>{
-    configStore.config = JSON.parse(res)
-})
 // 选择目录
 const selectPath = async () => {
     // webview自带的api无法获取文件夹绝对路径，需要使用wails的api
@@ -52,7 +48,7 @@ onUnmounted(async ()=>{
     .label {
         margin-right: 10px;
         font-size: 14px;
-        color: #ccc;
+        color: #999;
     }
     .savePath {
         display: flex;
@@ -62,7 +58,7 @@ onUnmounted(async ()=>{
         width: 600px;
         .input {
             width: 60%;
-            border-bottom: #ccc 1px solid;
+            border-bottom: #000 1px solid;
         }
     }
     .sort{
@@ -83,7 +79,7 @@ onUnmounted(async ()=>{
     margin-top: 20px;
     font-size: 16px;
     font-weight: 600;
-    color: #ece9e9;
+    color: #999;
 }
 
 .save {
