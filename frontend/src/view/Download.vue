@@ -47,6 +47,7 @@ const downStore = DownStore()
     .content{
         margin-top: 20px;
         height: 85%;
+        width:calc(100% - 60px);
         overflow: scroll;
         overflow-x: hidden;
         &::-webkit-scrollbar {

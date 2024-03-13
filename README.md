@@ -1,19 +1,18 @@
 # README
 
-## About
+# 一个基于酷我音乐api的音乐下载器
 
-This is the official Wails Vue-TS template.
+wails构建前端采用vue3 + ts
+可以实现多任务下载，自定义下载目录，搜索歌曲
+恢复下载未完成任务等功能
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## 设置目录 
+![](./img/folder.png)
+## 搜索下载
+![](./img/download.gif)
+可以看到下载进度还是很快的,瞬间完成
+只能限速才能看到进度条的效果了😄
+![](./img/progress.png)
 
-## Live Development
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
 
-## Building
-
-To build a redistributable, production mode package, use `wails build`.
